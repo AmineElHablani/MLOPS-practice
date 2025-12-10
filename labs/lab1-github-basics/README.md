@@ -12,7 +12,7 @@
 - Git installed
 - GitHub account
 
-## 🛠️ Setup Instructions
+##  Setup Instructions
 
 ### 1. Clone the Repository
 
@@ -48,7 +48,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 lab1-github-basics/
@@ -121,7 +121,7 @@ git push origin main
 git checkout -b feature/your-feature
 ```
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 
 **Virtual environment won't activate (Windows):**
