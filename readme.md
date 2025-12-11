@@ -64,7 +64,7 @@ cd labs
 | Session | Topic | Materials | Labs |
 |---------|-------|-----------|------|
 | 01 | Introduction | ✅ | ⏳ Coming Soon |
-| 02 | TBD | 🔜 | 🔜 |
+| 02 | Version Control| 🔜 | 🔜 | ✅ | labGit: 1,2,3
 | 03 | TBD | 🔜 | 🔜 |
 
 </div>
