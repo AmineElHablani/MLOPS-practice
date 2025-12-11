@@ -1,87 +1,218 @@
-# GitHub Actions + AWS S3: ML Automation Lab
+# Lab 3: GitHub Actions + AWS S3 - ML Model Storage
 
-Automate machine learning model training and storage using GitHub Actions and AWS S3.
+## Learning Objectives
 
-## What You'll Learn
-
-- Connect GitHub Actions to AWS
+- Connect GitHub Actions to AWS S3
 - Automate ML model training
-- Store models in S3 automatically
+- Store trained models in cloud storage
+- Use GitHub Secrets for secure credentials
 
-## Quick Setup
+##  Prerequisites
 
-### 1. Create GitHub Repository
+- AWS account (free tier is fine)
+- Completed Lab 1 and Lab 2
+- Python 3.8+
+- Git and GitHub account
+
+## Setup Instructions
+
+### 1. Navigate to Lab 3
+
+**Mac:**
 ```bash
-git clone https://github.com/AardwolfFizzler/MLOPS.git
-cd MLOPS/labs/github-actions-aws-beginner-lab
-
-# Copy to new location
-cp -r . ~/my-aws-lab
-cd ~/my-aws-lab
-rm -rf .git
-
-# Push to your new repo
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/your-username/your-repo.git
-git push -u origin main
+cd ~/path/to/MLOPS-Repo/labs/lab3-github-actions-aws-beginner-lab
 ```
 
-### 2. Setup AWS
+**Windows:**
+```bash
+cd C:\path\to\MLOPS-Repo\labs\lab3-github-actions-aws-beginner-lab
+```
 
-**Create IAM User:**
-1. Go to [AWS IAM Console](https://console.aws.amazon.com/iam/)
-2. Create user → Attach `AmazonS3FullAccess` policy
-3. Create access keys → Save Access Key ID and Secret Key
+### 2. Create Virtual Environment
 
-**Create S3 Bucket:**
-1. Go to [S3 Console](https://console.aws.amazon.com/s3/)
-2. Create bucket with a unique name
-3. Note the bucket name and region
+**Mac:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
-### 3. Add GitHub Secrets
+**Windows:**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
 
-Go to your repo **Settings** → **Secrets and variables** → **Actions**
+### 3. Install Dependencies
 
-Add these secrets:
-- `AWS_ACCESS_KEY_ID` - Your AWS access key
-- `AWS_SECRET_ACCESS_KEY` - Your AWS secret key  
-- `AWS_S3_BUCKET` - Your bucket name
-- `AWS_REGION` - Your AWS region (e.g., `us-east-1`)
-- `AWS_SESSION_TOKEN` - Only if using temporary credentials
+```bash
+pip install -r requirements.txt
+```
 
-### 4. Run Workflow
+## AWS Setup
 
-1. Go to **Actions** tab in GitHub
-2. Click **"Train and save model to S3"**
-3. Click **"Run workflow"**
-4. Check your S3 bucket for the trained model!
+### Step 1: Create S3 Bucket
 
-## Files
+1. Go to [S3 Console](https://s3.console.aws.amazon.com/s3/)
+2. Click **Create bucket**
+3. Enter a **unique bucket name** (e.g., `mlops-models-yourname-2025`)
+4. Select your **AWS Region** (e.g., `us-east-1`)
+5. Leave other settings as default
+6. Click **Create bucket**
 
-- `train_and_save_model.py` - Trains RandomForest on Iris dataset, uploads to S3
-- `requirements.txt` - Dependencies (pandas, scikit-learn, boto3)
-- `.github/workflows/train-and-upload.yml` - GitHub Actions workflow
+##  Configure GitHub Secrets
 
-## How It Works
+### Add Secrets to Your Repository
 
-The workflow:
-1. Runs daily at midnight (or manually)
-2. Sets up Python environment
-3. Trains a RandomForest model
-4. Uploads model to S3 as `trained_models/model_[timestamp].joblib`
+1. Go to your GitHub repository
+2. Click **Settings** → **Secrets and variables** → **Actions**
+3. Click **New repository secret**
+4. Add these four secrets:
+
+| Secret Name | Value | Example |
+|-------------|-------|---------|
+| `AWS_ACCESS_KEY_ID` | Your access key ID | `AKIAIOSFODNN7EXAMPLE` |
+| `AWS_SECRET_ACCESS_KEY` | Your secret access key | `wJalrXUtnFEMI/K7MDENG/bPxRfi...` |
+| `AWS_S3_BUCKET` | Your bucket name | `mlops-models-yourname-2024` |
+| `AWS_REGION` | Your AWS region | `us-east-1` |
+
+**⚠️ Security Note:** Never commit AWS credentials to your code!
+
+##  Project Structure
+
+```
+lab3-github-actions-aws-beginner-lab/
+├── train_and_save_model.py    # Training script with S3 upload
+├── requirements.txt           # Dependencies
+└── README.md
+```
+
+**Note:** The workflow file is at `.github/workflows/lab3-train-and-upload.yml` in the repository root.
+
+## Test Locally (Optional)
+
+Set environment variables and run:
+
+**Mac/Linux:**
+```bash
+export AWS_ACCESS_KEY_ID='your-key'
+export AWS_SECRET_ACCESS_KEY='your-secret'
+export AWS_S3_BUCKET='your-bucket-name'
+export AWS_DEFAULT_REGION='us-east-1'
+
+python train_and_save_model.py
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:AWS_ACCESS_KEY_ID='your-key'
+$env:AWS_SECRET_ACCESS_KEY='your-secret'
+$env:AWS_S3_BUCKET='your-bucket-name'
+$env:AWS_DEFAULT_REGION='us-east-1'
+
+python train_and_save_model.py
+```
+
+## Run GitHub Actions Workflow
+
+### Method 1: Push Changes (Automatic)
+
+```bash
+git add .
+git commit -m "Test Lab 3 workflow"
+git push origin main
+```
+
+### Method 2: Manual Trigger
+
+1. Go to your repository on GitHub
+2. Click **Actions** tab
+3. Select **"Lab 3 - Train and Upload to S3"**
+4. Click **"Run workflow"** button
+5. Click **"Run workflow"** to confirm
+
+### Check Results
+
+1. Wait for workflow to complete 
+2. Go to your S3 bucket in AWS Console
+3. Look in `trained_models/` folder
+4. You should see: `model_YYYYMMDDHHMMSS.joblib`
+
+##  Understanding the Code
+
+### `train_and_save_model.py`
+
+The script:
+1. **Downloads** Iris dataset from scikit-learn
+2. **Splits** data into train/test sets
+3. **Trains** a RandomForest classifier
+4. **Evaluates** model accuracy
+5. **Uploads** model to S3 with timestamp
+
+### S3 Storage Path
+
+Models are saved as:
+```
+s3://your-bucket-name/trained_models/model_20241211143022.joblib
+```
 
 ## Troubleshooting
 
-**"Invalid security token"** → Credentials expired, generate new ones
+**"Invalid security token" or "Access Denied":**
+- Verify AWS credentials in GitHub Secrets
+- Check IAM user has S3FullAccess policy
+- Ensure bucket name is correct
 
-**"Access Denied"** → Check IAM permissions and bucket name
+**"Bucket does not exist":**
+- Double-check bucket name in secrets
+- Verify bucket region matches `AWS_REGION` secret
 
-**No workflow trigger** → Ensure file is on `main` branch
+**Workflow doesn't trigger:**
+- Check file is on `main` branch
+- Verify workflow file is in `.github/workflows/`
+- Try manual trigger from Actions tab
 
-## Resources
+**Import errors:**
+- Activate virtual environment
+- Run: `pip install -r requirements.txt`
 
-- [GitHub Actions Docs](https://docs.github.com/en/actions)
-- [AWS S3 Docs](https://docs.aws.amazon.com/s3/)
-- [Boto3 Docs](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
+**Local testing fails:**
+- Set all environment variables
+- Check AWS CLI configuration: `aws s3 ls`
+
+
+### Add Model Metadata
+```python
+import json
+metadata = {
+    'timestamp': timestamp,
+    'accuracy': accuracy,
+    'model_type': 'RandomForest',
+    'n_estimators': 100
+}
+# Save metadata.json to S3
+
+```
+
+## Cleanup (After Lab)
+
+To avoid AWS charges:
+
+1. **Delete S3 Objects:**
+   - Go to S3 Console
+   - Select your bucket
+   - Delete all objects in `trained_models/`
+
+2. **Delete S3 Bucket:**
+   - Click bucket → Delete
+   - Confirm deletion
+
+## 📚 Resources
+
+- [AWS S3 Documentation](https://docs.aws.amazon.com/s3/)
+- [Boto3 Documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
+- [GitHub Actions - AWS](https://github.com/aws-actions/configure-aws-credentials)
+- [Scikit-learn Datasets](https://scikit-learn.org/stable/datasets.html)
+
+---
+
+**Happy Cloud Computing! ☁️**

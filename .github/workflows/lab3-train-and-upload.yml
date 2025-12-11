@@ -1,13 +1,28 @@
-name: Train and save model to S3
+name: Lab 3 - Train and Upload to S3
+run-name: Lab 3 Train Model and Upload to S3
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'labs/lab3-github-actions-aws-beginner-lab/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'labs/lab3-github-actions-aws-beginner-lab/**'
   schedule:
     - cron: '0 0 * * *' # Run every day at midnight
-  workflow_dispatch: # Run manually
+  workflow_dispatch: # Allow manual trigger
 
 jobs:
   train_and_save:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: labs/lab3-github-actions-aws-beginner-lab
+
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
@@ -24,8 +39,8 @@ jobs:
       - name: Cache pip dependencies
         uses: actions/cache@v4
         with:
-          path: ${{ steps.pip-cache-dir.outputs.dir}}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          path: ${{ steps.pip-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('labs/lab3-github-actions-aws-beginner-lab/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       
@@ -42,8 +57,12 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Train and save model
+      - name: Train and save model to S3
         env:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        run: python train_and_save_model.py
+
+      - name: Verify Upload
         run: |
-          python train_and_save_model.py
+          echo "Model training and S3 upload completed successfully!"
+          echo "Check your S3 bucket: ${{ secrets.AWS_S3_BUCKET }}"

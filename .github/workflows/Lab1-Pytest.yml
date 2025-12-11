@@ -39,8 +39,8 @@ jobs:
 
     - name: Notify on success
       if: success()
-      run: echo "✅ Lab 1 Pytest tests passed!"
+      run: echo " Lab 1 Pytest tests passed!"
 
     - name: Notify on failure
       if: failure()
-      run: echo "❌ Lab 1 Pytest tests failed!"
+      run: echo " Lab 1 Pytest tests failed!"
