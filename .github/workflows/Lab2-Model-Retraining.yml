@@ -1,0 +1,73 @@
+name: Lab 2 - Model Retraining
+run-name: Lab 2 Model Retraining
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'labs/lab2-model-training-versioning/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'labs/lab2-model-training-versioning/**'
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: labs/lab2-model-training-versioning
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Generate and Store Timestamp
+      run: |
+        timestamp=$(date '+%Y%m%d%H%M%S')
+        echo "$timestamp" > timestamp.txt
+        echo "TIMESTAMP=$timestamp" >> $GITHUB_ENV
+      id: timestamp
+
+    - name: Retrain Model
+      run: |
+        timestamp=$(cat timestamp.txt)
+        python src/train_model.py --timestamp "$timestamp"
+
+    - name: Evaluate Model and Log Metrics
+      run: |
+        timestamp=$(cat timestamp.txt)
+        python src/evaluate_model.py --timestamp "$timestamp"
+        metrics_filename="${timestamp}_metrics.json"
+        mv $metrics_filename metrics/$metrics_filename
+
+    - name: Store and Version the New Model
+      run: |
+        timestamp=$(cat timestamp.txt)
+        model_filename="model_${timestamp}_dt_model.joblib"
+        mv $model_filename models/$model_filename
+
+    - name: Commit and Push Changes
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        timestamp=$(cat timestamp.txt)
+        metrics_filename="${timestamp}_metrics.json"
+        model_filename="model_${timestamp}_dt_model.joblib"
+        git add metrics/$metrics_filename models/$model_filename
+        git commit -m "Add trained model and metrics [timestamp: $timestamp]" || echo "No changes to commit"
+        git push || echo "Push failed or nothing to push"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
