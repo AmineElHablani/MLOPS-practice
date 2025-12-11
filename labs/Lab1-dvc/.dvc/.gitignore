@@ -1,3 +1,6 @@
 DVC_Lab/
 *.dvcignore
 *.json
+/config.local
+/tmp
+/cache
