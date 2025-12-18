@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# DVC generated outputs (do NOT commit)
+data/weatherAUS.csv
+data/weatherAUS_processed.csv
+models/
+results/
+
+# Other
+aws/
