@@ -1,0 +1,5 @@
+outs:
+- md5: d89d6856407dbb006fb36766ea1ef5d2
+  size: 14167326
+  hash: md5
+  path: weatherAUS.csv
