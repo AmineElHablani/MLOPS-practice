@@ -1,0 +1,71 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python3 src/preprocess_data.py data/weatherAUS.csv
+    deps:
+    - path: data/weatherAUS.csv
+      hash: md5
+      md5: d89d6856407dbb006fb36766ea1ef5d2
+      size: 14167326
+    - path: src/preprocess_data.py
+      hash: md5
+      md5: a5643e810d32ee94ba9de0aa95e59b33
+      size: 2834
+    outs:
+    - path: data/weatherAUS_processed.csv
+      hash: md5
+      md5: b2a36797b07799ebae6f1e26153b8b2a
+      size: 14964257
+  train:
+    cmd: python3 src/train.py data/weatherAUS_processed.csv src/model.py 200
+    deps:
+    - path: data/weatherAUS_processed.csv
+      hash: md5
+      md5: b2a36797b07799ebae6f1e26153b8b2a
+      size: 14964257
+    - path: src/model.py
+      hash: md5
+      md5: 36aea6ecb240af8148796663f9e7776e
+      size: 2041
+    - path: src/train.py
+      hash: md5
+      md5: f91f0651d0d7ba657f5e14e2894e1737
+      size: 3681
+    outs:
+    - path: models/model.joblib
+      hash: md5
+      md5: 76fdae46a207a62105c96674634eb184
+      size: 4767225
+  evaluate:
+    cmd: python3 src/evaluate.py data/weatherAUS_processed.csv src/model.py 
+      models/model.joblib
+    deps:
+    - path: data/weatherAUS_processed.csv
+      hash: md5
+      md5: b2a36797b07799ebae6f1e26153b8b2a
+      size: 14964257
+    - path: models/model.joblib
+      hash: md5
+      md5: 76fdae46a207a62105c96674634eb184
+      size: 4767225
+    - path: src/evaluate.py
+      hash: md5
+      md5: 15bef68edd4bb5b584eeba1fd7476c49
+      size: 7072
+    - path: src/model.py
+      hash: md5
+      md5: 36aea6ecb240af8148796663f9e7776e
+      size: 2041
+    outs:
+    - path: results/metrics.json
+      hash: md5
+      md5: 4d86cd8e65758898762a8f7ee4c21910
+      size: 79
+    - path: results/precision_recall_curve.png
+      hash: md5
+      md5: ce27b450f62c3e66d5e5cb9f23421cfb
+      size: 80069
+    - path: results/roc_curve.png
+      hash: md5
+      md5: 0256c66894e545f21f191741da374d68
+      size: 153221
